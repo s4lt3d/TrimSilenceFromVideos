@@ -1,12 +1,12 @@
 # Run script as is. It will process the video and provide outputs. 
 # This script can take a very long time depending on video length. 
 
-video_path = 'C:\\Users\\walte\\Videos\\TEst\\2024-04-01 18-08-37.mkv'
+video_path = 'C:\\Videos\\Test\\2024-04-01 18-08-37.mkv'
 
 minimum_silence_duration = 0.6
 silence_pre_roll = 0.1
 silence_post_roll = 0.1
-minimum_silence_new_clip= 8
+minimum_silence_new_clip = 8
 
 audio_rate = 22050
 
@@ -179,7 +179,7 @@ def output_grouped_segments_as_videos(source_video_path, output_path, grouped_se
 
         # Output the combined clip to a file
         output_filename = f"output_video_group_{i+1:03d}.mp4"
-        output_name = os.path.combine(output_path, output_filename)
+        output_name = os.path.join(output_path, output_filename)
         combined_clip.write_videofile(output_name, codec="libx264", audio_codec="aac")
         
         print(f"Generated {output_filename}")
@@ -194,4 +194,3 @@ grouped_segments = group_segments_by_gap(audio_segments, minimum_silence_new_cli
 print(f"Generating {len(grouped_segments)} video segments based on minimum_silence_new_clip of {minimum_silence_new_clip} seconds")
 
 output_grouped_segments_as_videos(video_path, output_path, grouped_segments)
-
