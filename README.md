@@ -5,3 +5,6 @@ Simply processes videos with silent gaps removed.
 Features to add
 - Add a pre-delay after skipping gaps to account for humans talking back to back.
 - Add a post and pre-delay after skipping long sections to allow for transitions in a video editor
+
+Example Usage
+- Cut the silence of our dnd sessions and watch it again later. 
