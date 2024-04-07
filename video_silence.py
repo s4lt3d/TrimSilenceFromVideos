@@ -1,17 +1,24 @@
 # Run script as is. It will process the video and provide outputs. 
 # This script can take a very long time depending on video length. 
 
-video_path = '2024-04-01 18-08-37.mkv'
-minimum_silence_duration = 0.3
+video_path = 'C:\\Users\\walte\\Videos\\TEst\\2024-04-01 18-08-37.mkv'
+
+minimum_silence_duration = 0.6
+silence_pre_roll = 0.1
+silence_post_roll = 0.1
 minimum_silence_new_clip= 8
+
 audio_rate = 22050
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 import numpy as np
+import multiprocessing
+import os
+output_path = os.path.basename(video_path)
 
 def audio_to_dB(audio_clip, fps=22050):
     """
-    Attempts to convert an audio clip to its dB value.
+    Convert an audio clip to its dB value.
     
     :param audio_clip: The audio clip from moviepy.
     :param fps: Frames per second for the audio clip analysis.
@@ -80,7 +87,7 @@ def detect_audio_segments(video, silence_threshold=-30.0, min_silence_duration=0
 
     if current_start is not None:
         # Add the final segment if it doesn't end with silence
-        segments.append((current_start, duration))
+        segments.append((current_start - silence_pre_roll, duration + silence_post_roll))
 
     return segments
 
@@ -149,7 +156,7 @@ def group_segments_by_gap(segments, long_gap_threshold=10.0):
     return grouped_segments
 
 
-def output_grouped_segments_as_videos(source_video_path, grouped_segments):
+def output_grouped_segments_as_videos(source_video_path, output_path, grouped_segments):
     """
     Outputs each group of segments as its own video file, combining the segments specified
     in each group into a single continuous clip.
@@ -163,6 +170,7 @@ def output_grouped_segments_as_videos(source_video_path, grouped_segments):
     video = VideoFileClip(source_video_path)
 
     for i, group in enumerate(grouped_segments):
+        print(f"Processing {i}")
         # Create a list of video clips for the current group
         clips = [video.subclip(start, end) for start, end in group]
 
@@ -171,7 +179,8 @@ def output_grouped_segments_as_videos(source_video_path, grouped_segments):
 
         # Output the combined clip to a file
         output_filename = f"output_video_group_{i+1:03d}.mp4"
-        combined_clip.write_videofile(output_filename, codec="libx264", audio_codec="aac")
+        output_name = os.path.combine(output_path, output_filename)
+        combined_clip.write_videofile(output_name, codec="libx264", audio_codec="aac")
         
         print(f"Generated {output_filename}")
 
@@ -184,4 +193,5 @@ grouped_segments = group_segments_by_gap(audio_segments, minimum_silence_new_cli
 
 print(f"Generating {len(grouped_segments)} video segments based on minimum_silence_new_clip of {minimum_silence_new_clip} seconds")
 
-output_grouped_segments_as_videos(video_path, grouped_segments)
+output_grouped_segments_as_videos(video_path, output_path, grouped_segments)
+
